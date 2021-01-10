@@ -3,10 +3,12 @@ header:
   click_events: false
 
 blocks:
-  wifi:
-    full_text: "{{name}}: {{ip}}"
-    short_text: "{ip}"
-    color: "green"
-  time:
-    full_text: "%a %F %H:%M:%S"
-    short_text: "%H:%M:%S"
+  - wifi:
+      full_text: "{{name}}: {{ip}}"
+      short_text: "{ip}"
+      color: "#00FF00"
+  - time:
+      full_text: "%a %F %H:%M:%S"
+      short_text: "%H:%M:%S"
+  - foo:
+      command: ["echo", "-n", "test"]

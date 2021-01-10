@@ -1,65 +1,56 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::env;
 use std::fs::File;
+use std::process::Command;
 use std::thread::sleep;
-use std::time::Duration;
+use std::time::{Duration, Instant};
+
+use i3status_bar::*;
+
 // use chrono;
 // use handlebars;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Header {
-  version: u32,
-  stop_signal: Option<u16>,
-  cont_signal: Option<u16>,
-  click_events: Option<bool>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Field {
-  full_text: Option<String>,
-  short_text: Option<String>,
-  command: Option<String>, // Custom, not a part of i3 protocol
-  color: Option<String>,
-  background: Option<String>,
-  border: Option<String>,
-  border_top: Option<u32>,
-  border_right: Option<u32>,
-  border_bottom: Option<u32>,
-  border_left: Option<u32>,
-  min_width: Option<u32>,
-  align: Option<String>,
-  name: Option<String>,
-  instance: Option<String>,
-  urgent: Option<bool>,
-  separator: Option<bool>,
-  separator_block_width: Option<u32>,
-  markup: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Config {
-  header: Header,
-  blocks: HashMap<String, Field>,
-}
-
 fn main() -> Result<(), anyhow::Error> {
   let args: Vec<_> = env::args().collect();
-  let file_name = if args.len() == 0 {
+  let file_name = if args.len() < 2 {
     "i3status.conf"
   } else {
     &args[1]
   };
+  // Panic if config file can't be opened
   let f = File::open(file_name).unwrap();
 
   let conf: Config = serde_yaml::from_reader(f)?;
-  // Write '\n[[]' to make things easier to start wtih
-  print!("{}\n[[]", serde_json::to_string(&conf.header)?);
+  // Print out header for the bar 
+  // Write '\n[[]' to make things easier to start with
+  println!("{}\n[\n[]", serde_json::to_string(&conf.header)?);
+  // Convert the config into the correct i3 format that we can modify
+  let mut blocks : Vec<Field> = conf.blocks.into_iter().flat_map(|m|
+    m.into_iter().map(|(k, v)| 
+        Field { 
+          name: Some(k), 
+          ..v
+        }
+    )
+  ).collect();
+  
+  // Loop forever to print out the next bar
   loop {
-    sleep(Duration::from_millis(1000));
-    println!("Hi");
+    let start = Instant::now();
+    for block in &mut blocks {
+      // Check for commands right now
+      if let Some(c) = &block.command {
+        if c.len() > 0 {
+          let mut cmd = Command::new(&c[0]);
+          block.full_text = Some(String::from_utf8(
+            cmd.args(&c[1..]).output()?.stdout
+          )?)
+        }
+      }
+    }
+    // Print out our blocks
+    println!(",{}", serde_json::to_string(&blocks)?);
+    // Sleep for up to a second
+    sleep(Duration::from_secs(1) - (Instant::now() - start));
   }
-
   Ok(())
-  // for  in docs.iter().flat_map(|d| d.as_hash()) { }
 }
