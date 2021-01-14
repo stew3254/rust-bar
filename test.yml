@@ -1,0 +1,91 @@
+builtin:
+  - components:
+      - component:
+          label: "placeholder"
+          temp: "F"
+          critical_temp: "F"
+          max_temp: "F"
+  - cpus:
+      - cpu:
+          name: "placeholder"
+          frequency: "G"
+          usage: "percent"
+          vendor_id: 0
+#          ? brand
+  - disks:
+      - disk:
+          name: "placeholder"
+          avail: "G"
+          used: "G"
+          free: "G"
+          total: "G"
+  - memory:
+      avail: "G"
+      used: "G"
+      free: "G"
+      total: "G"
+      avail_swap: "G"
+      used_swap: "G"
+      free_swap: "G"
+      total_swap: "G"
+  - net:
+      - interface:
+          name: Fix this
+#          ? incoming_bytes
+#          ? total_incoming_bytes
+#          ? outgoing_bytes
+#          ? total_outgoing_bytes
+#          ? incoming_pkts
+#          ? total_incoming_pkts
+#          ? outgoing_pkts
+#          ? total_outgoing_pkts
+#          ? incoming_errors
+#          ? total_incoming_errors
+#          ? outgoing_errors
+#          ? total_outgoing_errors
+  - processes:
+      - process:
+          name: "placeholder"
+          cmd: []
+#          ? path
+          pid: 0
+#          ? environ
+#          ? cwd
+#          ? root
+          memory_used: "G"
+          virtual_memory: "G"
+#          ? parent
+#          ? status
+          start_time: "s"
+          cpu_usage: "percent"
+  - users:
+      - user:
+          name: "placeholder"
+          groups: []
+  - system:
+      uptime: "s"
+      boot_time: "s"
+      load_avg: "percent"
+  
+i3:
+  header:
+    version: 1
+    click_events: false
+
+  blocks:
+    - wifi:
+        builtin: true
+        full_text_format: "{{name}}: {{ip}}"
+        short_text_format: "{ip}"
+        color: "#00FF00"
+    - disk:
+        builtin: true
+        full_text_format: "{{name}}: {{ip}}"
+        short_text_format: "{ip}"
+        color: "#00FF00"
+    - time:
+        builtin: true
+        full_text_format: "%a %F %H:%M:%S"
+        short_text_format: "%H:%M:%S"
+    - foo:
+        command: ["echo", "-n", "test"]
